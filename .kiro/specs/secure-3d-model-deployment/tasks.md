@@ -1,0 +1,290 @@
+# Implementation Plan: Secure 3D Model Deployment
+
+## Overview
+
+This implementation plan breaks down the secure 3D model deployment system into discrete coding tasks. The approach follows a layered implementation strategy: first establishing the core 3D viewer, then adding security layers (authentication, encryption, streaming), and finally implementing deployment infrastructure. Each task builds incrementally with testing integrated throughout.
+
+## Tasks
+
+- [ ] 1. Set up project structure and dependencies
+  - Create directory structure (client/, server/, shared/)
+  - Initialize package.json with TypeScript configuration
+  - Install Three.js, Express, jsonwebtoken, fast-check, and testing dependencies
+  - Configure build tools (Webpack/Vite for client, tsc for server)
+  - Set up ESLint and Prettier for code quality
+  - _Requirements: 7.1, 7.4_
+
+- [x] 2. Implement basic 3D viewer with Three.js
+  - [x] 2.1 Create ModelViewer class with scene initialization
+    - Implement constructor that sets up Three.js scene, camera, and renderer
+    - Add OrbitControls for user interaction (rotation, zoom, pan)
+    - Implement resize handling for responsive canvas
+    - _Requirements: 1.1, 1.2_
+  - [x] 2.2 Write property test for camera controls
+    - **Property 2: Camera Controls Responsiveness**
+    - **Validates: Requirements 1.2**
+  - [x] 2.3 Add loading indicator and error display UI
+    - Create HTML elements for loading progress bar
+    - Implement error message display component
+    - Add CSS styling for UI elements
+    - _Requirements: 1.3, 1.4_
+  - [x] 2.4 Write unit tests for viewer initialization
+    - Test successful WebGL context creation
+    - Test error handling for WebGL unavailable
+    - Test loading indicator display
+    - _Requirements: 1.1, 1.3, 1.4_
+
+- [x] 3. Implement animation system
+  - [x] 3.1 Add animation detection and loading to ModelViewer
+    - Parse GLB file for embedded animations
+    - Create AnimationMixer and store AnimationClips
+    - Implement animation metadata extraction
+    - _Requirements: 2.1_
+  - [x] 3.2 Write property test for animation detection
+    - **Property 3: Animation Detection Completeness**
+    - **Validates: Requirements 2.1**
+  - [x] 3.3 Implement animation playback controls
+    - Add playAnimation(index) method
+    - Add pauseAnimation() method
+    - Add restartAnimation() method
+    - Implement animation state management
+    - _Requirements: 2.2, 2.3, 2.4_
+  - [x] 3.4 Add animation UI controls (play, pause, restart buttons)
+    - Create HTML button elements for controls
+    - Wire button events to animation methods
+    - Update button states based on animation state
+    - Add animation selector dropdown for multiple animations
+    - _Requirements: 2.4, 2.5_
+  - [x] 3.5 Implement animation loop configuration
+    - Add loop configuration option to ViewerConfig
+    - Implement loop/stop behavior on animation completion
+    - _Requirements: 2.6_
+  - [x] 3.6 Write property tests for animation playback
+    - **Property 4: Animation Playback State Consistency**
+    - **Property 5: Animation Selection Independence**
+    - **Property 6: Animation Loop Configuration**
+    - **Validates: Requirements 2.2, 2.3, 2.4, 2.5, 2.6**
+
+- [ ] 4. Checkpoint - Verify basic viewer functionality
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 5. Implement server-side authentication service
+  - [x] 5.1 Create AuthenticationService class
+    - Implement generateToken(sessionId) using jsonwebtoken
+    - Implement validateToken(token) with signature verification
+    - Implement generateEncryptionKey(sessionId) for XOR keys
+    - Add token expiration logic (1 hour)
+    - _Requirements: 4.1, 4.2, 4.4_
+  - [x] 5.2 Write property tests for token generation
+    - **Property 11: Token Generation and Expiration**
+    - **Validates: Requirements 4.1, 4.2**
+  - [x] 5.3 Write property test for expired token rejection
+    - **Property 12: Expired Token Rejection**
+    - **Validates: Requirements 4.3**
+  - [x] 5.4 Create authentication API endpoints
+    - Implement POST /api/auth/token endpoint
+    - Implement POST /api/auth/refresh endpoint
+    - Add request validation and error handling
+    - _Requirements: 4.1, 4.3_
+  - [x] 5.5 Write unit tests for authentication endpoints
+    - Test token generation with valid requests
+    - Test 401 response for invalid tokens
+    - Test token refresh flow
+    - _Requirements: 4.1, 4.3, 4.5_
+
+- [x] 6. Implement encryption and secure model streaming
+  - [x] 6.1 Create encryption utilities
+    - Implement xorEncrypt(data, key) function
+    - Implement xorDecrypt(data, key) function
+    - Add chunk size configuration
+    - _Requirements: 5.1_
+  - [x] 6.2 Write property test for encryption round-trip
+    - **Property 13: Encryption Round-trip Consistency**
+    - **Validates: Requirements 5.1, 5.3**
+  - [x] 6.3 Create ModelStreamingService class
+    - Implement streamModel() method with chunked reading
+    - Add token validation before streaming
+    - Apply XOR encryption to each chunk
+    - Implement rate limiting logic
+    - _Requirements: 3.3, 3.4, 3.5, 5.1_
+  - [x] 6.4 Create GET /api/models/:modelName/stream endpoint
+    - Wire up ModelStreamingService
+    - Add Authorization header validation
+    - Set appropriate response headers (Content-Type, Cache-Control)
+    - Implement error responses (401, 403, 404)
+    - _Requirements: 3.2, 3.3, 3.4_
+  - [x] 6.5 Write property tests for streaming and encryption
+    - **Property 9: Token Validation Enforcement**
+    - **Property 10: Chunked Delivery**
+    - **Property 14: Session Key Uniqueness**
+    - **Validates: Requirements 3.4, 3.5, 4.4, 5.2**
+  - [x] 6.6 Write unit tests for streaming service
+    - Test 403 response for direct file access
+    - Test chunked delivery mechanism
+    - Test token validation enforcement
+    - _Requirements: 3.2, 3.4, 3.5_
+
+- [ ] 7. Implement client-side secure model loader
+  - [x] 7.1 Create SecureModelLoader class
+    - Implement fetchEncryptedModel(url, token) method
+    - Add chunk receiving and decryption logic
+    - Implement progress tracking during download
+    - _Requirements: 5.3, 9.2_
+  - [x] 7.2 Create AuthenticationClient class
+    - Implement requestAccessToken() method
+    - Implement refreshToken() method
+    - Add token expiration checking
+    - _Requirements: 4.1, 4.3_
+  - [x] 7.3 Integrate SecureModelLoader with ModelViewer
+    - Update loadModel() to use SecureModelLoader
+    - Add token request before model loading
+    - Implement automatic token refresh
+    - Clear decrypted data after loading
+    - _Requirements: 3.3, 5.3, 5.4_
+  - [x] 7.4 Write property tests for secure loading
+    - **Property 7: URL Security - No Direct File Paths**
+    - **Property 8: Streaming Endpoint Exclusivity**
+    - **Property 15: No Persistent Storage of Decrypted Data**
+    - **Validates: Requirements 3.1, 3.3, 5.4**
+  - [x] 7.5 Write unit tests for client authentication
+    - Test token request flow
+    - Test token refresh before expiration
+    - Test error handling for auth failures
+    - _Requirements: 4.1, 4.3_
+
+- [ ] 8. Checkpoint - Verify security implementation
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [ ] 9. Implement error handling and resilience
+  - [ ] 9.1 Add network error retry logic
+    - Implement exponential backoff (1s, 2s, 4s)
+    - Add retry counter (max 3 attempts)
+    - Display error message after all retries fail
+    - _Requirements: 8.1, 8.2_
+  - [ ] 9.2 Write property test for retry logic
+    - **Property 17: Network Error Retry Logic**
+    - **Validates: Requirements 8.1**
+  - [ ] 9.3 Add WebGL capability detection
+    - Detect WebGL 2.0 support
+    - Fall back to WebGL 1.0 if needed
+    - Display compatibility warning for unsupported browsers
+    - _Requirements: 10.2, 10.3, 10.4_
+  - [ ] 9.4 Write property test for WebGL detection
+    - **Property 23: WebGL Capability Detection**
+    - **Validates: Requirements 10.2, 10.3**
+  - [ ] 9.5 Implement error logging and resilience
+    - Add console.error logging for all errors
+    - Wrap critical code in try-catch blocks
+    - Prevent application crash on unexpected errors
+    - _Requirements: 8.4, 8.5_
+  - [ ] 9.6 Write property tests for error handling
+    - **Property 18: Error Logging Consistency**
+    - **Property 19: Error Resilience**
+    - **Validates: Requirements 8.4, 8.5**
+
+- [ ] 10. Implement performance optimizations
+  - [ ] 10.1 Add progressive loading with feedback
+    - Emit progress events during model loading
+    - Update loading indicator with percentage
+    - _Requirements: 9.2_
+  - [ ] 10.2 Write property test for progressive loading
+    - **Property 20: Progressive Loading Feedback**
+    - **Validates: Requirements 9.2**
+  - [ ] 10.3 Implement lazy texture loading
+    - Load textures on-demand during rendering
+    - Track loaded textures to avoid duplicates
+    - _Requirements: 9.4_
+  - [ ] 10.4 Add shader program caching
+    - Cache compiled shader programs
+    - Reuse cached shaders for subsequent renders
+    - _Requirements: 9.5_
+  - [ ] 10.5 Write property tests for performance features
+    - **Property 21: Lazy Texture Loading**
+    - **Property 22: Shader Program Caching**
+    - **Validates: Requirements 9.4, 9.5**
+
+- [ ] 11. Implement security headers and CORS configuration
+  - [ ] 11.1 Add security headers middleware
+    - Set Content-Security-Policy header
+    - Set X-Frame-Options header
+    - Set X-Content-Type-Options header
+    - Set Referrer-Policy header
+    - Set Strict-Transport-Security header
+    - _Requirements: 11.1, 11.2, 11.3, 11.4, 11.5_
+  - [ ] 11.2 Configure CORS policy
+    - Set appropriate Access-Control-Allow-Origin
+    - Configure allowed methods and headers
+    - _Requirements: 6.4_
+  - [ ] 11.3 Write property tests for security headers
+    - **Property 24: Security Headers Completeness**
+    - **Property 16: CORS Header Configuration**
+    - **Validates: Requirements 11.1, 11.2, 11.3, 11.4, 11.5, 6.4**
+  - [ ] 11.4 Write unit tests for security configuration
+    - Test all security headers are present
+    - Test CORS headers are correctly set
+    - Test HTTPS redirect (if applicable)
+    - _Requirements: 6.3, 6.4, 11.1-11.5_
+
+- [x] 12. Set up build and deployment pipeline
+  - [x] 12.1 Configure production build process
+    - Set up Webpack/Vite production config
+    - Enable minification for JavaScript and CSS
+    - Generate source maps
+    - Configure asset compression (gzip/brotli)
+    - Use model-compressed.glb for production
+    - _Requirements: 6.2, 7.2, 7.5, 9.1_
+  - [x] 12.2 Create deployment configuration files
+    - Create deployment script or configuration
+    - Set environment variables for production
+    - Configure HTTPS redirect
+    - Set up static file serving with compression
+    - _Requirements: 6.1, 6.3, 6.5_
+  - [x] 12.3 Write unit tests for build output
+    - Test that production build is minified
+    - Test that source maps are generated
+    - Test that compressed model is used
+    - _Requirements: 7.2, 7.5, 9.1_
+
+- [x] 13. Create main application entry points
+  - [x] 13.1 Create client entry point (main.js)
+    - Initialize ViewerConfig with API base URL
+    - Create ModelViewer instance
+    - Set up animation controls event listeners
+    - Handle application lifecycle
+    - _Requirements: 1.1, 2.4_
+  - [x] 13.2 Create HTML page (index.html)
+    - Add canvas element for Three.js
+    - Add loading indicator elements
+    - Add animation control buttons
+    - Add error message container
+    - Link to bundled JavaScript
+    - _Requirements: 1.3, 1.4, 2.4_
+  - [x] 13.3 Create server entry point
+    - Initialize Express app
+    - Mount authentication routes
+    - Mount streaming routes
+    - Add security headers middleware
+    - Add CORS middleware
+    - Start server on configured port
+    - _Requirements: 6.1, 6.4, 11.1-11.5_
+
+- [ ] 14. Final checkpoint - End-to-end verification
+  - Ensure all tests pass (unit and property tests)
+  - Verify model loads and displays correctly
+  - Verify animations play with controls
+  - Verify direct file access returns 403
+  - Verify security headers are present
+  - Verify token authentication works
+  - Ask the user if questions arise.
+
+## Notes
+
+- All tasks are required for comprehensive implementation
+- Each task references specific requirements for traceability
+- Property tests validate universal correctness properties with 100+ iterations
+- Unit tests validate specific examples and edge cases
+- Checkpoints ensure incremental validation throughout implementation
+- The implementation uses TypeScript for type safety
+- Three.js is used for 3D rendering
+- Express and jsonwebtoken are used for server-side security
+- fast-check is used for property-based testing
