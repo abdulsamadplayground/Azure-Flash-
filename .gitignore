@@ -4,6 +4,15 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
+
+.kiro/
+design.md
+requirements.md
+tasks.md
+
+.vsocde/
+settings.json
+
 # Build outputs
 dist/
 build/
@@ -37,11 +46,9 @@ coverage/
 *.tmp
 .cache/
 
-# Protected 3D Models and Videos
+# Protected 3D Models (NOT pushed to GitHub)
 public/model.glb
 public/*.glb
-public/ModelAnimation.mp4
-public/*.mp4
 
-# But allow encrypted versions
-!encrypted/
+# MP4 video is allowed to be pushed
+# public/ModelAnimation.mp4 - This file WILL be pushed to GitHub
