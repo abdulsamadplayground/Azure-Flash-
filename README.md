@@ -19,10 +19,7 @@ Place your files in the `public/` folder:
 npm run dev
 ```
 
-Visit: http://localhost:5173
-
 ## 📁 Project Structure
-
 ```
 .
 ├── public/                 # Static assets
@@ -38,16 +35,6 @@ Visit: http://localhost:5173
 │   ├── VirtualKeypad.jsx  # Keyboard navigation UI
 │   ├── secureModelLoader.js   # Secure API client (optional)
 │   └── styles.css         # Global styles
-├── .kiro/                 # Kiro specs and documentation
-│   └── specs/             # Project specifications
-├── server/                # Backend API (optional - for encryption)
-│   ├── server.js          # Express server with auth
-│   └── modelEncryption.js # Encryption utilities
-├── scripts/               # Utility scripts (optional)
-│   └── encryptModels.js   # Model encryption script
-├── encrypted/             # Encrypted files (optional)
-│   ├── model.glb.enc      # ✅ Safe for Git
-│   └── ModelAnimation.mp4.enc # ✅ Safe for Git
 ├── index.html             # HTML entry point
 ├── package.json           # Dependencies and scripts
 ├── vite.config.ts         # Vite configuration
@@ -64,6 +51,7 @@ Visit: http://localhost:5173
 - [`src/VirtualKeypad.jsx`](src/VirtualKeypad.jsx) - Keyboard navigation controls and instructions overlay
 - [`src/Index.jsx`](src/Index.jsx) - Application entry point that mounts React to DOM
 - [`src/styles.css`](src/styles.css) - Global styles including animations and button effects
+- [`public/ModelAnimation.mp4`](public/ModelAnimation.mp4) - Animation video that syncs with 3D model (included in repo)
 - [`public/README.md`](public/README.md) - Detailed guide for adding and managing 3D models
 - [`package.json`](package.json) - Project dependencies and npm scripts
 - [`vite.config.ts`](vite.config.ts) - Vite bundler configuration
@@ -85,6 +73,7 @@ Visit: http://localhost:5173
 - Video popup modal
 - Auto-stop when video ends
 - Replay functionality
+- 📹 **[View Animation Video](public/ModelAnimation.mp4)** - Preview the animation that plays with the 3D model
 
 ### Security (Optional Setup)
 - Encrypted model storage
@@ -190,10 +179,6 @@ git commit -m "Add secure 3D model viewer"
 git push
 ```
 
-Only encrypted files will be pushed. Original models stay local.
-
-**See [SECURITY_SETUP.md](SECURITY_SETUP.md) for complete security documentation.**
-
 ## 🚢 Deployment
 
 ### Simple Deployment (No Encryption)
@@ -215,12 +200,12 @@ npm run build
 ## 🛡️ What's Protected by Default
 
 ✅ **Already Protected (in [`.gitignore`](.gitignore)):**
-- `public/model.glb` - Your 3D model
-- `public/ModelAnimation.mp4` - Your video
+- `public/model.glb` - Your 3D model (NOT pushed to GitHub)
 - `.env` - Environment variables
 - `node_modules/` - Dependencies
 
-❌ **Not Protected (public in repo):**
+✅ **Included in Repository:**
+- [`public/ModelAnimation.mp4`](public/ModelAnimation.mp4) - Animation video (safe to share)
 - Source code ([`src/`](src/))
 - Configuration files ([`package.json`](package.json), [`vite.config.ts`](vite.config.ts))
 - Documentation
@@ -350,6 +335,10 @@ Contributions welcome! Please ensure:
 - [Animation Controls](src/AnimationControls.jsx) - Play/stop UI and video sync
 - [Keyboard Navigation](src/VirtualKeypad.jsx) - WASD controls and instructions
 
+### Media Assets
+- [Animation Video](public/ModelAnimation.mp4) - MP4 video that plays with 3D animation
+- [Model Guide](public/README.md) - How to add and manage 3D models
+
 ### Configuration
 - [Package Configuration](package.json) - Dependencies and scripts
 - [Vite Config](vite.config.ts) - Build and dev server settings
@@ -357,7 +346,6 @@ Contributions welcome! Please ensure:
 - [Git Ignore](.gitignore) - Protected files list
 
 ### Documentation
-- [Model Guide](public/README.md) - How to add and manage 3D models
 - [Quick Start](QUICK_START.md) - Fast setup guide
 - [Security Setup](SECURITY_SETUP.md) - Encryption and protection
 - [Push Checklist](GITHUB_PUSH_CHECKLIST.md) - Pre-commit verification
